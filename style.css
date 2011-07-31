@@ -1,0 +1,33 @@
+.gamefield, .info{
+	float:left;
+}
+.info{
+	padding-left: 10px;
+}
+
+.matrix{
+	border-top: 1px solid #999;
+	border-left: 1px solid #999;
+	
+}
+
+.matrix .cell{
+	float: left;
+	border-bottom: 1px solid #999;
+	border-right: 1px solid #999;
+}
+
+.cell.fruit{
+	background-color: #ff0;
+}
+
+.cell.snake{
+	background-color: #0f0;
+}
+.cell.snake.snake-alter{
+	background-color: #0b0;
+}
+
+.cell.snake.dead{
+	background-color: #00f;
+}
