@@ -1,0 +1,15 @@
+body{
+	margin:0px;
+}
+
+.ui-custom-container {
+	font-size:xx-large;
+	color:#888888
+}
+
+.ui-custom-message {
+	text-align:center;
+	vertical-align:middle;
+	min-height: 120px;
+	min-width: 360px;
+}

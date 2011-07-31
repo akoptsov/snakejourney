@@ -24,10 +24,31 @@
 .cell.snake{
 	background-color: #0f0;
 }
+
 .cell.snake.snake-alter{
 	background-color: #0b0;
 }
 
-.cell.snake.dead{
-	background-color: #00f;
+.cell.snake-asp {
+	background-color: #f00;
+}
+
+.cell.snake-asp.snake-alter{
+	background-color: #b00;
+}
+
+.cell.snake-python {
+	background-color: #0ff;
+}
+
+.cell.snake-python.snake-alter{
+	background-color: #0bb;
+}
+
+.cell.dead{
+	background-color: #e0e0e0;
+}
+
+.cell.dead.damage{
+	background-color: #800
 }

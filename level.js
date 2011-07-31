@@ -1,21 +1,12 @@
-function _invoke(){
-	if(arguments.length>1){
-		if($.isFunction(arguments[0])){
-			arguments[0].apply(arguments[1], $.makeArray(arguments).splice(2, arguments.length - 2));
-		}
-	}
-}
-
-function _rnd(inf, sup){
-	var res = Math.floor(Math.random()*(sup-inf) + inf);
-	return res >= sup ? sup - 1 : res;
-};
-
 defaults.Level = {
 	name: 'Level',
 	field: {
 		height: 20,
 		width: 20
+	},
+	fruit: {
+		className: 'fruit',
+		quantity: 1
 	},
 	steptime: 250,
 	snake: {
@@ -24,12 +15,49 @@ defaults.Level = {
 	finish: {
 		time: 0,
 		score: 0
+	}, events:  {
+		start: function(){},
+		clear: function(result){}, 
+		failed: function(){},
+		scorechange: function(score){},
+		timechange: function(time){}
 	}
 };
 
 var Level = function(opts){
 	var level = this;
 	var options = $.extend(true,{}, defaults.Level, opts);
+	level.name = options.name;
+	level.finish = options.finish;
+	
+	var _result = {
+		score: 0,
+		time: 0
+	}
+	
+	function _settime(time){
+		if(time!=_result.time){
+			_result.time = time;
+			if(options.finish.time && _result.time>=options.finish.time){
+				level.tasker.stop();
+				_invoke(options.events.clear, level, _result);
+			} else {
+				_invoke(options.events.timechange, level, _result.time);
+			}
+		}
+	}
+	
+	function _setscore(score){
+		if(score!=_result.score){
+			_result.score=score;
+			if(options.finish.score && _result.score>=options.finish.score){
+				level.tasker.stop();
+				_invoke(options.events.clear, level, _result);
+			} else {
+				_invoke(options.events.scorechange, level, _result.score);
+			}
+		}
+	}
 	
 	level.create = function(engine){
 		level.engine = engine
@@ -37,7 +65,6 @@ var Level = function(opts){
 			var matrix = level.matrix = new Matrix(options.field);
 			matrix.create(engine.gamefield);
 			
-			var _lasttime = 0;
 			var tasker = level.tasker = {
 				timer : options.steptime,
 				runs: 0,
@@ -70,11 +97,7 @@ var Level = function(opts){
 							function(){ 
 								$tasker.runs +=$tasker.timer;
 								$tasker.task();
-								var _runtime = Math.floor(tasker.runs/1000.0);
-								if(_runtime!=_lasttime){
-									_invoke(options.events.timechange, level, _runtime);
-									_lasttime = _runtime;
-								}
+								_settime(Math.floor(tasker.runs/1000.0));
 							}, 
 							this.timer
 						);
@@ -92,10 +115,12 @@ var Level = function(opts){
 			var fruiter = level.fruiter = {
 				fruit: {
 					eaten: 0,
-					className: 'fruit'
+					quantity: options.fruit.quantity,
+					className: options.fruit.className
 				}, spawn: function(){
 					var cell = matrix.cell(_rnd(0,20), _rnd(0,20));
-					if(cell.hasClass(defaults.Snake.classes.body)){
+					if(cell.hasClass(defaults.Snake.classes.body) ||
+					   cell.hasClass(fruiter.fruit.className)){
 						fruiter.spawn();
 					} else {
 						cell.addClass(fruiter.fruit.className);
@@ -108,6 +133,7 @@ var Level = function(opts){
 			}
 			
 			var snake = level.snake = new Snake({
+				classes: options.snake.classes,
 				checkers: {
 					edible: function($element){
 						return fruiter.isfruit($element);
@@ -117,11 +143,11 @@ var Level = function(opts){
 					eat: function($element){
 						fruiter.remove($element);
 						fruiter.spawn();
-						_invoke(options.events.scorechange, level, ++fruiter.fruit.eaten);
+						_setscore(++fruiter.fruit.eaten);
 					},
 					die: function($element){
 						tasker.stop();
-						_invoke(options.events.endgame, level);
+						_invoke(options.events.failed, level);
 					}
 				}
 			});
@@ -137,11 +163,11 @@ var Level = function(opts){
 			});
 
 			snake.create(snakebody);
-			fruiter.spawn();
-			
-			if($.isFunction(options.events.startgame)){
-				options.events.startgame.call(level);
+			for(var i=0; i< options.fruit.quantity; i++){
+				fruiter.spawn();
 			}
+
+			_invoke(options.events.start, level);
 		}
 	};
 
@@ -163,4 +189,11 @@ var Level = function(opts){
 			}
 		}
 	};
+	
+	level.destroy = function(dir){
+		if(level.tasker && level.tasker.interval){
+			level.tasker.stop();
+		}
+		level.matrix.destroy();
+	}
 }

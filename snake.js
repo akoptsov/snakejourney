@@ -18,7 +18,8 @@ defaults.Snake = {
 	classes: { 
 		body: 'snake',
 		/*bodyalter: 'snake-alter',*/
-		dead: 'dead'
+		dead: 'dead',
+		damage: 'damage'
 	},
 	// Функции проверки
 	checkers : {
@@ -82,8 +83,11 @@ function Snake(opts){
 		if(_body.length){
 			_body.removeClass(options.classes.bodyalter||'').addClass(options.classes.dead||'');
 		}
-		if($.isFunction(options.actions.die))
-			options.actions.die.call(_body, $element);
+		if($element){
+			$element.addClass(options.classes.damage||'');
+		}
+		
+		_invoke(options.actions.die, _body, $element);
 	}
 	
 	//создаём змейку из объекта jQuery
@@ -117,7 +121,7 @@ function Snake(opts){
 	snake.move = function($element){
 		if(!$element){
 			//если элемент не задан - мы за границами поля. Смерть от столкновения с тупым тяжелым предметом(стеной)
-			_die();
+			_die(snake.head());
 		} else if (_snake($element)){
 			//если в этой клетке уже есть змейка - мы отгрызли себе хвост. Смерть через харакири.
 			_die($element);
@@ -140,4 +144,9 @@ function Snake(opts){
 	snake.head = function(){
 		return _body.last();
 	};
+	
+	//возвращает текущую длину нашей козявки
+	snake.length = function(){
+		return _body.length || 0;
+	}
 }
