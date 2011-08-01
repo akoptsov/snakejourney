@@ -16,7 +16,9 @@ defaults.Engine = {
 	levels:[
 		{
 			name: 'Уровень 1 : Зеленая Козявка', 
-			finish: { score:5 }
+			field: {width:20, height:20}, 
+			steptime: 240,
+			finish: { score: 8 }
 		}, 
 		{
 			name: 'Уровень 2 : Алый Аспид', 
@@ -25,12 +27,12 @@ defaults.Engine = {
 			snake:{
 				classes:{body:'snake-asp'}
 			}, 
-			steptime: 200, 
-			finish: {score:30}
+			steptime: 180, 
+			finish: {score:23}
 		},
 		{
 			name: 'Последний уровень: Железный Питон', 
-			field: {width:25, height:20}, 
+			field: {width:25, height:25}, 
 			fruit: {quantity:2}, 
 			snake:{
 				classes:{
@@ -38,8 +40,8 @@ defaults.Engine = {
 					bodyalter:'snake-alter'
 				}
 			}, 
-			steptime:150, 
-			finish: {time:60}
+			steptime:120, 
+			finish: {time:90}
 		}
 	]
 };

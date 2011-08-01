@@ -9,9 +9,9 @@ var _keys = {
 // Точка входа.
 //
 $(function() {
+	var $requirement = $('<p></p>').addClass('task').appendTo('.info');
 	var $time = $('<p></p>').appendTo('.info');
 	var $score = $('<p></p>').appendTo('.info');
-	var $requirement = $('<p></p>').appendTo('.info');
 	
 	
 	var engine = new Engine({
@@ -29,10 +29,10 @@ $(function() {
 						}
 					} else if(!level.finish.time){
 						if(level.finish.score){
-							return 'Задание уровня: отрастить хвост длины '+ ((level.snake?(level.snake.length() + level.finish.score): level.finish.score) - 1)
+							return 'Задание уровня: воспитать змею длины '+ (level.snake?(level.snake.length() + level.finish.score): level.finish.score)
 						}
 					} else {
-						return 'Задание уровня: отрастить хвост длины '+ ((level.snake?(level.snake.length() + level.finish.score): level.finish.score) - 1)+' за '+level.finish.time+' секунд';
+						return 'Задание уровня: воспитать змею длины '+ (level.snake?(level.snake.length() + level.finish.score): level.finish.score) +' за '+level.finish.time+' секунд';
 					}
 				})());
 			},

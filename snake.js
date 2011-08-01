@@ -148,5 +148,11 @@ function Snake(opts){
 	//возвращает текущую длину нашей козявки
 	snake.length = function(){
 		return _body.length || 0;
-	}
+	};
+	
+	//Проверяет, принадлежит ли элемент телу змеи
+	snake.issnake = function($element){
+		return _snake($element);
+	};
+	
 }

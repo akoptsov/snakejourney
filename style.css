@@ -3,6 +3,11 @@
 }
 .info{
 	padding-left: 10px;
+	font-size: large;
+	font-family:Calibri,Tahoma,sans-serif
+}
+.info .task{
+	font-size: larger;
 }
 
 .matrix{

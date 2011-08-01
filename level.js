@@ -33,13 +33,13 @@ var Level = function(opts){
 	var _result = {
 		score: 0,
 		time: 0
-	}
+	};
 	
 	function _settime(time){
 		if(time!=_result.time){
 			_result.time = time;
 			if(options.finish.time && _result.time>=options.finish.time){
-				level.tasker.stop();
+				_tasker.stop();
 				_invoke(options.events.clear, level, _result);
 			} else {
 				_invoke(options.events.timechange, level, _result.time);
@@ -51,7 +51,7 @@ var Level = function(opts){
 		if(score!=_result.score){
 			_result.score=score;
 			if(options.finish.score && _result.score>=options.finish.score){
-				level.tasker.stop();
+				_tasker.stop();
 				_invoke(options.events.clear, level, _result);
 			} else {
 				_invoke(options.events.scorechange, level, _result.score);
@@ -59,141 +59,155 @@ var Level = function(opts){
 		}
 	}
 	
+	var _matrix = new Matrix(options.field);
+	
+	function _cell(coords){
+		if(_matrix){
+			return _matrix.cell(coords.row, coords.col);
+		}
+	}
+	
+	var _tasker = {
+		timer : options.steptime,
+		runs: 0,
+		task : function(){
+			if(_snake && _matrix){
+				
+				if(_direction){
+					_snake.direction(_direction);
+					_direction = undefined;
+				}
+
+				var index = _matrix.find(_snake.head());
+				if(index){
+					switch(_snake.direction()){
+						case 'left': index.col--; break;
+						case 'right': index.col++; break;
+						case 'up': index.row--; break;
+						case 'down': index.row++; break;
+						default: break;
+					}
+					_snake.move(_cell(index));
+				}
+			}
+		},
+		start : function(){
+			if(this.task){
+				var tasker = this;
+				this.interval = setInterval(
+					function(){ 
+						tasker.runs +=tasker.timer;
+						tasker.task();
+						_settime(Math.floor(tasker.runs/1000.0));
+					}, 
+					this.timer
+				);
+			}
+		},
+		stop: function(){
+			if(this.interval){
+				clearInterval(this.interval);
+				this.interval = false;
+			}
+		}
+	};
+	
+	var _fruiter = {
+		fruit: {
+			eaten: 0,
+			quantity: options.fruit.quantity,
+			className: options.fruit.className
+		}, spawn: function(){
+			var cell = _cell({row:_rnd(0,20), col:_rnd(0,20)});
+			if((_snake && _snake.issnake(cell)) || _fruiter.isfruit(cell)){
+				_fruiter.spawn();
+			} else {
+				cell.addClass(_fruiter.fruit.className);
+			}
+		}, remove: function($element){
+			$element.removeClass(_fruiter.fruit.className);
+		}, isfruit: function($element){
+			return !!$element.hasClass(_fruiter.fruit.className);
+		}
+	};
+	
+	var _snake = level.snake = new Snake({
+		classes: options.snake.classes,
+		checkers: {
+			edible: function($element){
+				return _fruiter.isfruit($element);
+			}
+		},
+		actions: {
+			eat: function($element){
+				_fruiter.remove($element);
+				_fruiter.spawn();
+				_setscore(++_fruiter.fruit.eaten);
+			},
+			die: function($element){
+				_tasker.stop();
+				_invoke(options.events.failed, level);
+			}
+		}
+	});
+	
+	
+	// ѕользовательское направление движени€ змеи. 
+	// Ќужно дл€ того, чтобы исключить слишком быстрые нажати€ пользователем на клавиши
+	var _direction;
+	
+	//создаЄт новый уровень
 	level.create = function(engine){
 		level.engine = engine
 		if(engine.gamefield){
-			var matrix = level.matrix = new Matrix(options.field);
-			matrix.create(engine.gamefield);
-			
-			var tasker = level.tasker = {
-				timer : options.steptime,
-				runs: 0,
-				task : function(){
-					if(snake){
-						
-						if(_direction){
-							snake.direction(_direction);
-							_direction = undefined;
-						}
+			_matrix.create(engine.gamefield);
 
-						var index = matrix.find(snake.head());
-						if(index){
-							switch(snake.direction()){
-								case 'left': index.col--; break;
-								case 'right': index.col++; break;
-								case 'up': index.row--; break;
-								case 'down': index.row++; break;
-								default: break;
-							}
-							var cell = matrix.cell(index.row, index.col);
-							snake.move(cell);
-						}
-					}
-				},
-				start : function(){
-					if(this.task){
-						var $tasker = this;
-						this.interval = setInterval(
-							function(){ 
-								$tasker.runs +=$tasker.timer;
-								$tasker.task();
-								_settime(Math.floor(tasker.runs/1000.0));
-							}, 
-							this.timer
-						);
-					}
-				},
-				stop: function(){
-					if(this.interval){
-						clearInterval(this.interval);
-						this.interval = false;
-					}
-				}
-			};
-			
-			
-			var fruiter = level.fruiter = {
-				fruit: {
-					eaten: 0,
-					quantity: options.fruit.quantity,
-					className: options.fruit.className
-				}, spawn: function(){
-					var cell = matrix.cell(_rnd(0,20), _rnd(0,20));
-					if(cell.hasClass(defaults.Snake.classes.body) ||
-					   cell.hasClass(fruiter.fruit.className)){
-						fruiter.spawn();
-					} else {
-						cell.addClass(fruiter.fruit.className);
-					}
-				}, remove: function($element){
-					$element.removeClass(fruiter.fruit.className);
-				}, isfruit: function($element){
-					return !!$element.hasClass(fruiter.fruit.className);
-				}
-			}
-			
-			var snake = level.snake = new Snake({
-				classes: options.snake.classes,
-				checkers: {
-					edible: function($element){
-						return fruiter.isfruit($element);
-					}
-				},
-				actions: {
-					eat: function($element){
-						fruiter.remove($element);
-						fruiter.spawn();
-						_setscore(++fruiter.fruit.eaten);
-					},
-					die: function($element){
-						tasker.stop();
-						_invoke(options.events.failed, level);
-					}
-				}
-			});
-			
 			var snakebody;
 			$.each(options.snake.coords, function(index, coords){
-				var cell = matrix.cell(coords.row, coords.col);
-				if(!snakebody){
-					snakebody = cell;
-				} else {
-					snakebody.add(cell);
+				var cell = _cell(coords);
+				if(cell){
+					if(!snakebody){
+						snakebody = cell;
+					} else {
+						snakebody.push(cell[0]);
+					}
 				}
 			});
-
-			snake.create(snakebody);
+			_snake.create(snakebody);
+			
 			for(var i=0; i< options.fruit.quantity; i++){
-				fruiter.spawn();
+				_fruiter.spawn();
 			}
-
+			
 			_invoke(options.events.start, level);
 		}
 	};
-
-	var _direction;
 	
+	//обрабатывает команду ползовател€
 	level.command = function(dir){
 		if(dir=='pause'){
-			if(level.tasker && level.tasker.interval){
+			if(_tasker && _tasker.interval){
 				//останавливаем игру
-				level.tasker.stop();
-			} else if(level.tasker.runs > 0) {
+				_tasker.stop();
+			} else if(_tasker.runs > 0) {
 				//запускаем, но только если игра уже идЄт
-				level.tasker.start();
+				_tasker.start();
 			}
-		} else if(level.snake.canturn(dir)){
+		} else if(_snake && _snake.canturn(dir)){
 			_direction = dir;
-			if (!level.tasker.interval){
-				level.tasker.start();
+			if (!_tasker.interval){
+				_tasker.start();
 			}
 		}
 	};
 	
+	//удал€ет текущий уровень
 	level.destroy = function(dir){
-		if(level.tasker && level.tasker.interval){
-			level.tasker.stop();
+		if(_tasker && _tasker.interval){
+			_tasker.stop();
 		}
-		level.matrix.destroy();
+		if(_matrix){
+			_matrix.destroy();
+		}
 	}
 }
