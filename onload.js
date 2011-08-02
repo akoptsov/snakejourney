@@ -38,6 +38,7 @@ $(function() {
 			},
 			endlevel: function(level, result, proceed){
 				$.info.show({
+					type:'keypress', 
 					text:'<p>Уровень завершен</p><p>Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						proceed();
@@ -47,6 +48,7 @@ $(function() {
 			endgame: function(result, proceed){
 				var engine = this;
 				$.info.show({
+					type:'keypress', 
 					text:'<p>Игра пройдена!</p><p>Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						proceed();
@@ -63,6 +65,17 @@ $(function() {
 					}	
 				});
 			},
+			pausegame: function(){
+				$.info.show({
+					type: 'keypress',
+					fadein: 500,
+					fadeout: 100,
+					text: 'Игра приостановлена',
+					callback: function(){
+						engine.command('pause');
+					}
+				})
+			},
 			scorechange: function(score){
 				$score.html("Съедено фруктов: "+ score);
 			},
@@ -71,6 +84,7 @@ $(function() {
 			},
 			gameover: function(){
 				$.info.show({
+					type:'keypress', 
 					text:'Змейка безвременно скончалась. Игра окончена..', 
 					callback: function(){
 						location.reload(true);

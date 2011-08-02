@@ -7,9 +7,31 @@ body{
 	color:#888888
 }
 
-.ui-custom-message {
+.ui-custom-container td {
 	text-align:center;
 	vertical-align:middle;
+}
+
+.ui-custom-message {
 	min-height: 120px;
 	min-width: 360px;
+}
+
+.ui-custom-keypress {
+	font-size: large;
+}
+
+.ui-custom-button {
+	font-size: large;
+	min-width:72px;
+	min-height:24px;
+	background-color: #aeaeae;
+	color: gray;
+	border: solid gray 1px;
+	margin: 0px 3px;
+}
+
+.ui-custom-button-hover{
+	font-size:larger;
+	background-color: #e0e0e0;
 }

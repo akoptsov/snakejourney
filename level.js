@@ -10,6 +10,8 @@ defaults.Level = {
 	},
 	steptime: 250,
 	snake: {
+		//WARNING: _direction определено в snake.js
+		direction: _directions.right,
 		coords: [{row:0, col:0}, {row: 0, col: 1}]
 	},
 	finish: {
@@ -17,6 +19,7 @@ defaults.Level = {
 		score: 0
 	}, events:  {
 		start: function(){},
+		pause: function(){},
 		clear: function(result){}, 
 		failed: function(){},
 		scorechange: function(score){},
@@ -189,6 +192,7 @@ var Level = function(opts){
 			if(_tasker && _tasker.interval){
 				//останавливаем игру
 				_tasker.stop();
+				_invoke(options.events.pause, level);
 			} else if(_tasker.runs > 0) {
 				//запускаем, но только если игра уже идёт
 				_tasker.start();

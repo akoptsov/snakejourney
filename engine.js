@@ -7,6 +7,7 @@ defaults.Engine = {
 	events: {
 		startgame: function(){},
 		endgame: function(result, proceed){},
+		pausegame: function(){},
 		startlevel: function(level){},
 		endlevel: function(level, result, proceed){},
 		scorechange: function(score){},
@@ -18,7 +19,7 @@ defaults.Engine = {
 			name: 'Уровень 1 : Зеленая Козявка', 
 			field: {width:20, height:20}, 
 			steptime: 240,
-			finish: { score: 8 }
+			finish: { score:1/*8*/ }
 		}, 
 		{
 			name: 'Уровень 2 : Алый Аспид', 
@@ -28,7 +29,7 @@ defaults.Engine = {
 				classes:{body:'snake-asp'}
 			}, 
 			steptime: 180, 
-			finish: {score:23}
+			finish: {score:2/*23*/}
 		},
 		{
 			name: 'Последний уровень: Железный Питон', 
@@ -41,7 +42,7 @@ defaults.Engine = {
 				}
 			}, 
 			steptime:120, 
-			finish: {time:90}
+			finish: {time:/*90*/10}
 		}
 	]
 };
@@ -61,6 +62,9 @@ var Engine = function(opts){
 	var _levelevents = {
 		start: function(){
 			_invoke(options.events.startlevel, engine, this);
+		},
+		pause: function(){
+			_invoke(options.events.pausegame, engine);
 		},
 		clear: function(result){
 			_result.score +=result.score;

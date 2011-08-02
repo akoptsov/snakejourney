@@ -48,7 +48,7 @@ function Snake(opts){
 	var options = $.extend(true, {}, defaults.Snake, opts);
 
 	//Текущее направление движения змеи
-	var _direction;
+	var _direction = options.direction || undefined;
 
 	// проверяет, не является ли уже этот элемент частью змеи
 	function _snake($element){
