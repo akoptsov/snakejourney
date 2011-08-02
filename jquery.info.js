@@ -1,14 +1,6 @@
 (function($){
 	//"статические" переменные
-	_meta = {
-		id: 0,
-		zindexmin: 9000,
-		zindex : function(id){
-			return _meta.zindexmodal(id) + 1;
-		},
-		zindexmodal: function(id){
-			return _meta.zindexmin + 2 * id;
-		},
+	var _meta = {
 		types:{
 			blink: 'blink',
 			keypress: 'keypress',
@@ -39,15 +31,15 @@
 					cancel : {text: 'Отмена', click: function(proceed){_invoke(proceed, this); }}
 				}
 			},
-			fadeout: 2000,
-			fadein: 1000,
 			css: {
-				container: { className:'ui-custom-container'},
-				modal: {className: 'ui-custom-modal'},
-				message: {className: 'ui-custom-message'},
-				keypress: {className: 'ui-custom-keypress'},
-				button: {className: 'ui-custom-button', classNameHover:'ui-custom-button-hover'}
-			}
+				container: { className:'ui-custom-info-container'},
+				message: {className: 'ui-custom-info-message'},
+				keypress: {className: 'ui-custom-info-keypress'}
+			},
+			modal : {
+				
+			},
+			callback: function(){}
 		},
 		show: function(opts){
 			_meta.id++;
@@ -64,38 +56,16 @@
 			};
 			
 			var $document = $(document);
-			var $body = $('body');
-			var options = $.extend(true, {}, $.info.defaults, opts || {});
-			var style= {
-				modal:function() { return {
-						'position' :'absolute',
-						'z-index'  :  _meta.zindexmodal(_meta.id), 
-						'height' :  $document.height(),
-						'width'  :  $document.width(), 
-						'background-color' : 'gray' 
-					};
-				},
-				container: function(){
-					return{
-						'position':'absolute',
-						'z-index': _meta.zindex(_meta.id),
-						'top': ( $document.height() - container.height())/2,
-						'left': ( $document.width() - container.width())/2
-					}
-				}
-			};
-			var modal = $('<div></div>')
-				.addClass(options.css.modal.className)
-				.hide().appendTo($body);
-			var container = $('<table></table>')
-				.addClass(options.css.container.className)
-				.hide().appendTo($body);
-			var message = $('<td></td>').addClass(options.css.message.className);
-			$('<tr></tr>').append(message).appendTo(container);
 
+			var options = $.extend(true, {}, $.info.defaults, opts || {});
 			if(!_meta.types[options.type]){
 				options.type = _meta.types.blink;
 			}
+
+			var container = $('<table></table>').addClass(options.css.container.className);
+			var message = $('<td></td>').html(options.text || '').addClass(options.css.message.className);
+			$('<tr></tr>').append(message).appendTo(container);
+
 			
 			if(options.type == _meta.types.keypress){
 				var keyinfo = $('<td></td>')
@@ -109,48 +79,41 @@
 				$('<tr></tr>').append(keyinfo).appendTo(container);
 			}
 			
-			message.html(options.text || '');
-			
-
+			var modalopts = $.extend(true, {}, options.modal, {
+					callbacks: {
+						show: function(){
+							$document.bind('keydown', _blockkeys);
+						},
+						clear: function(){
+							$document.unbind('keydown', _blockkeys);
+						}
+					}
+				});
+			container.modal(
+				modalopts
+			);
 			
 			var _blockkeys = function(event){
 				if(event.keyCode != _meta.keys.refresh){
 					if( options.type==_meta.types.keypress && 
 						event.keyCode==options.types.keypress.key){
-						_close();
+						container.modal('hide', 
+							function(){ container.modal('clear', options.callback || $.noop); }
+						);
 					}
 					event.stopPropagation();
 					event.preventDefault();
 				}
 			};
 			
-			var _clear = function(){
-				modal.remove();
-				container.remove();
-				if(options.type == _meta.types.keypress && keytimer){
-					clearInterval(keytimer);
-				}
-				$document.unbind('keydown',_blockkeys);
-			};
-			
-			var _close = function(){
-				modal.fadeOut(options.fadeout);
-				container.fadeOut(options.fadeout, function(){
-					_clear();
-					_invoke(options.callback, window);
-				})
-			}
-			
-			modal.css(style.modal());
-			container.css(style.container());
-			//check
-			 $document.bind('keydown', _blockkeys);
-			
-			modal.fadeTo(options.fadein, 0.5);
 			if(options.type==_meta.types.blink){
-				container.fadeIn(options.fadein, _close);
+				container.modal('show', function(){
+					container.modal('hide', function(){
+						container.modal('clear', options.callback || $.noop);
+					});
+				});
 			} else {
-				container.fadeIn(options.fadein);
+					container.modal('show');
 			}
 		}
 	};

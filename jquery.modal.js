@@ -1,7 +1,7 @@
 (function($){
 	//"статические" переменные
-	_meta = {
-		name: 'modal'
+	var _meta = {
+		name: 'modal',
 		id: 0,
 		zindexmin: 9000,
 		zindex : function(id){
@@ -22,16 +22,13 @@
 	
 	
 	var modal = {
-		name = _meta.name,
+		name : _meta.name,
 		defaults: {
 			fadeout: 2000,
 			fadein: 1000,
 			css: {
-				container: { className:'ui-custom-container'},
-				modal: {className: 'ui-custom-modal'},
-				message: {className: 'ui-custom-message'},
-				keypress: {className: 'ui-custom-keypress'},
-				button: {className: 'ui-custom-button', classNameHover:'ui-custom-button-hover'}
+				container: { className:'ui-custom-modal-container'},
+				overlay: {className: 'ui-custom-modal-overlay'},
 			},
 			callbacks: {
 				show: function(){},
@@ -39,15 +36,16 @@
 				clear: function(){}
 			}
 		},	
-		methods = {
+		methods : {
 			init: function(opts){
 				_meta.id++;
 				
-				var $document = $(document);
 				var $body = $('body');
-				var options = $.extend(true, {}, $.info.defaults, opts || {});
+				var $document = $(document);
+				
+				var options = $.extend(true, {}, $.modal.defaults, opts || {});
 				var style= {
-					modal:function() { return {
+					overlay:function() { return {
 							'position' :'absolute',
 							'z-index'  :  _meta.zindexmodal(_meta.id), 
 							'height' :  $document.height(),
@@ -55,7 +53,7 @@
 							'background-color' : 'gray' 
 						};
 					},
-					container: function(){
+					container: function(container){
 						return{
 							'position':'absolute',
 							'z-index': _meta.zindex(_meta.id),
@@ -66,10 +64,11 @@
 				};
 				
 				
+				
 				this.each(function(index){
 					var $element = $(this);
-					var modal = $('<div></div>')
-						.addClass(options.css.modal.className)
+					var overlay = $('<div></div>')
+						.addClass(options.css.overlay.className)
 						.hide().appendTo($body);
 					var container = $('<div></div>')
 						.addClass(options.css.container.className)
@@ -84,15 +83,15 @@
 					
 					var _private = {
 						clear : function(nextaction){
-							modal.remove();
+							$element.trigger(_meta.events.clear);
+							overlay.remove();
 							container.remove();
-							$.element.trigger(_meta.events.clear);
 							if($.isFunction(nextaction)){
 								nextaction();
 							}
 						},
 						hide : function(nextaction){
-							modal.fadeOut(options.fadeout);
+							overlay.fadeOut(options.fadeout);
 							container.fadeOut(options.fadeout, function(){
 								$element.trigger(_meta.events.hide);
 								if($.isFunction(nextaction)){
@@ -101,26 +100,30 @@
 							});
 						},
 						show : function(nextaction) {
-							$element.trigger(meta.events.show);
-							modal.css(style.modal());
-							container.css(style.container());
-							modal.fadeTo(options.fadein, 0.5);
-							container.fadeIn(options.fadein, $.isFunction(nextaction) ? nextaction || $noop);
+							$element.trigger(_meta.events.show);
+							overlay.css(style.overlay());
+							container.css(style.container(container));
+							overlay.fadeTo(options.fadein, 0.5);
+							container.fadeIn(options.fadein, function() {
+								if($.isFunction(nextaction)){
+									nextaction();
+								}
+							});
 						}
 					};
 					
-					$.each(_meta.data, function(name, value)){
+					$.each(_meta.data, function(name, value){
 						$element.data(value, _private[name]);
-					}
+					});
 				});
 			}
 		}	
 	};
 	
-	$.each(['hide', 'show', 'clear'], function(mname){
-		modal[mname] = function(nextaction){
+	$.each(['hide', 'show', 'clear'], function(index, mname){
+		modal.methods[mname] = function(nextaction){
 			var $element = $(this[0]);
-			var method = $element.data(mname);
+			var method = $element.data(_meta.data[mname]);
 			if($.isFunction(method)){
 				method.call($element[0], nextaction);
 			}

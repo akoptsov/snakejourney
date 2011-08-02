@@ -68,8 +68,7 @@ $(function() {
 			pausegame: function(){
 				$.info.show({
 					type: 'keypress',
-					fadein: 500,
-					fadeout: 100,
+					modal: {fadein: 500, fadeout: 100},
 					text: 'Игра приостановлена',
 					callback: function(){
 						engine.command('pause');
