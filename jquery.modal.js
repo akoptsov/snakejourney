@@ -115,7 +115,10 @@
 					$.each(_meta.data, function(name, value){
 						$element.data(value, _private[name]);
 					});
+					
 				});
+				
+				return this;
 			}
 		}	
 	};
@@ -127,6 +130,7 @@
 			if($.isFunction(method)){
 				method.call($element[0], nextaction);
 			}
+			return this;
 		}
 	});
 	

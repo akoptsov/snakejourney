@@ -25,10 +25,6 @@
 					name: 'Пробел',
 					key: 32,
 					fade: 1000
-				},
-				buttons: {
-					ok: {text: 'Готово', click: function(proceed){ _invoke(proceed, this); }},
-					cancel : {text: 'Отмена', click: function(proceed){_invoke(proceed, this); }}
 				}
 			},
 			css: {
@@ -42,8 +38,6 @@
 			callback: function(){}
 		},
 		show: function(opts){
-			_meta.id++;
-			
 			function _button(btnopts){
 				if(btnopts.text && btnopts.click){
 					return btn =  ('<span></span>').text(btnopts.text)

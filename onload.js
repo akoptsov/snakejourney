@@ -14,6 +14,8 @@ $(function() {
 	var $score = $('<p></p>').appendTo('.info');
 	
 	
+	var playername;
+	
 	var engine = new Engine({
 		events: {
 			startlevel: function(level){
@@ -39,7 +41,7 @@ $(function() {
 			endlevel: function(level, result, proceed){
 				$.info.show({
 					type:'keypress', 
-					text:'<p>Уровень завершен</p><p>Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+					text:'<p>Уровень завершен</p><p>'+((playername)?(playername+', '):'')+'Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						proceed();
 					}
@@ -49,7 +51,7 @@ $(function() {
 				var engine = this;
 				$.info.show({
 					type:'keypress', 
-					text:'<p>Игра пройдена!</p><p>Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+					text:'<p>Игра пройдена!</p><p>'+((playername)?(playername+', '):'')+'Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						proceed();
 						if(engine.gamefield){
@@ -93,7 +95,28 @@ $(function() {
 		}
 	});
 	
-	engine.create($('.gamefield'));
+	var field = $('<div></div>');
+	var text = $('<input type="text"/>').css('width', '97%');
+	field.append(text).box({
+		header: {text: 'Введите Ваше имя'},
+		buttons: {
+			ok: {
+				click:function(proceed){ 
+					if(text.val()){
+						playername = text.val();
+						proceed(function(){
+							engine.create($('.gamefield'));
+						});
+					}
+				}
+			}, cancel: {
+				show: false
+			}
+		}
+	});
+	
+	
+	
 	
 	$(window).keydown(function(e){
 		var event = e || window.event;

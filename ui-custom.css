@@ -2,6 +2,7 @@ body{
 	margin:0px;
 }
 
+/*<jquery-info>*/
 .ui-custom-info-container {
 	font-size:xx-large;
 	color:#888888
@@ -20,18 +21,48 @@ body{
 .ui-custom-info-keypress {
 	font-size: large;
 }
+/*</jquery-info>*/
+
+/*<jquery-box>*/
+.ui-custom-box-container{
+	padding: 3px;
+	background-color: #fff
+}
+
+.ui-custom-box-content{
+	min-width:240px;
+	/*min-height:120px;*/
+	padding: 2px;
+}
+
+.ui-custom-box-header{
+	height: 24px;
+	font-size: large;
+	background-color: #e0e0e0;
+	color: gray;
+	padding-left: 10px;
+}
+
+.ui-custom-box-buttonpanel{
+	height:26px;
+	margin-top:3px;
+	padding:1px;
+}
 
 .ui-custom-button {
 	font-size: large;
 	min-width:72px;
-	min-height:24px;
-	background-color: #aeaeae;
+	height:24px;
+	text-align: center;
+	background-color:  #e0e0e0;
 	color: gray;
 	border: solid gray 1px;
-	margin: 0px 3px;
+	margin-left:3px;
+	float: right;
+	cursor: pointer;
 }
 
 .ui-custom-button-hover{
-	font-size:larger;
-	background-color: #e0e0e0;
+	background-color: #aeaeae;
 }
+/*</jquery-box>*/
