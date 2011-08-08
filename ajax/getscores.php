@@ -1,0 +1,1 @@
+<?php include("../php/connect.php");$count = $_POST['count'];if(isset($count)){	var $connection = connect() or die("Failed to connect:".mysql_error());	//TODO: дописать!} die ("Requested POST parameter \"name\" hasn't been set");?>
