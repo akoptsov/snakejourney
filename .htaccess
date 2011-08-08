@@ -1,0 +1,5 @@
+DirectoryIndex game.html
+<Files config.php>
+	Order deny,allow
+	Deny from all
+</Files>
