@@ -1,6 +1,13 @@
 <?php 
 include("..\config.php");
-$test='12345';
+
+function param_not_set($param, $method="POST"){
+	die("Requested ".$method." parameter \"".$param."\" is not set");
+}
+
+function mysql_query_or_die($query, $connection){
+	return mysql_query($query, $connection) or die("Error in query \"".$query."\", error text:".mysql_error());
+}
 
 function connect(){
 	global $sql_server;
