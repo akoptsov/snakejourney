@@ -2,11 +2,18 @@
 include("..\config.php");
 
 function param_not_set($param, $method="POST"){
+	header("HTTP/1.0 500 Internal Server Error");
 	die("Requested ".$method." parameter \"".$param."\" is not set");
 }
 
 function mysql_query_or_die($query, $connection){
-	return mysql_query($query, $connection) or die("Error in query \"".$query."\", error text:".mysql_error());
+	
+	$result = mysql_query($query, $connection);
+	if(!$result){
+		 header("HTTP/1.0 500 Internal Server Error");
+		 die("Error in query \"".$query."\", error text:".mysql_error());
+	}
+	return $result; 
 }
 
 function connect(){
@@ -14,7 +21,7 @@ function connect(){
 	global $sql_login;
 	global $sql_password;
 	global $sql_database;
-	echo "<p>\$sql_server: $sql_server, \$sql_login:$sql_login, \$sql_password:$sql_password, \$sql_database: $sql_database</p>";
+	//echo "<p>\$sql_server: $sql_server, \$sql_login:$sql_login, \$sql_password:$sql_password, \$sql_database: $sql_database</p>";
 	if(isset($sql_server)){
 		if(isset($sql_login) && isset($sql_password))
 		{

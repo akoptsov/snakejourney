@@ -14,7 +14,14 @@ $(function() {
 	var $score = $('<p></p>').appendTo('.info');
 	
 	
-	var playername;
+	var player = {
+		Name:'',
+		Id:0
+	};
+	
+	var level = {
+		index:0
+	};
 	
 	var engine = new Engine({
 		events: {
@@ -41,7 +48,7 @@ $(function() {
 			endlevel: function(level, result, proceed){
 				$.info.show({
 					type:'keypress', 
-					text:'<p>Уровень завершен</p><p>'+((playername)?(playername+', '):'')+'Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+					text:'<p>Уровень завершен</p><p>'+((player.Name)?(player.Name+', '):'')+'Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						proceed();
 					}
@@ -51,19 +58,27 @@ $(function() {
 				var engine = this;
 				$.info.show({
 					type:'keypress', 
-					text:'<p>Игра пройдена!</p><p>'+((playername)?(playername+', '):'')+'Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+					text:'<p>Игра пройдена!</p><p>'+((player.Name)?(player.Name+', '):'')+'Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
-						proceed();
-						if(engine.gamefield){
-							$time.empty();
-							$score.empty();
-							$.info.show({
-								text:'ПОЗДРАВЛЯЕМ С ПОБЕДОЙ!',
-								callback: function(){
-									location.reload(true);
+						if(player.Id && result.time && result.score)
+						$.service.call({
+							url: 'ajax/setscore.php',
+							data: { playerid : player.Id, time: result.time, score:result.score },
+							success: function(data){
+								proceed();
+								if(engine.gamefield){
+									$time.empty();
+									$score.empty();
+									$.info.show({
+										text:'ПОЗДРАВЛЯЕМ С ПОБЕДОЙ!',
+										callback: function(){
+											location.reload(true);
+										}
+									});
 								}
-							});
-						}
+							}
+						});
+						
 					}	
 				});
 			},
@@ -103,10 +118,20 @@ $(function() {
 			ok: {
 				click:function(proceed){ 
 					if(text.val()){
-						playername = text.val();
-						proceed(function(){
-							engine.create($('.gamefield'));
+						player.Name = text.val();
+						$.service.call({
+							url: 'ajax/getplayer.php',
+							data: {name:player.Name},
+							success: function(data){
+								if(data){
+									player.Id = data;
+									proceed(function(){
+										engine.create($('.gamefield'));
+									});
+								}
+							}
 						});
+						
 					}
 				}
 			}, cancel: {
@@ -114,8 +139,6 @@ $(function() {
 			}
 		}
 	});
-	
-	
 	
 	
 	$(window).keydown(function(e){

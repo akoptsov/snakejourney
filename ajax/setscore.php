@@ -9,11 +9,11 @@ $time = $_POST['time'];
 if(isset($playerid)){
 	if(isset($score)){
 		if(isset($time)){
-			var $connection = connect() or die("Failed to connect:".mysql_error());
-			var $rows = mysql_query_or_die(
-			'insert into Scores 
+			$connection = connect() or die("Failed to connect:".mysql_error());
+			$rows = mysql_query_or_die(
+			'insert into Score 
 				(PlayerId, Score, Time) 
-			values ('.mysql_real_escape_string($playerid).','..mysql_real_escape_string($score).','..mysql_real_escape_string($time).')', $connection);
+			values ('.mysql_real_escape_string($playerid).','.mysql_real_escape_string($score).','.mysql_real_escape_string($time).')', $connection);
 			echo 'success';
 		} else {
 			param_not_set("time");

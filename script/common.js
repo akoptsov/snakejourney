@@ -52,6 +52,19 @@ function _register(pobject){
 			}
 		};
 	} else {
-		$.error('Missing vital parameters on plugin register');
+		$.error('Missing vital parameters (.name, .methods or .defaults) on plugin register');
 	}
 }
+
+$.service = {
+	defaults :{
+		type: "POST",
+		error: function(XMLHttpRequest){
+			alert(XMLHttpRequest.responseText);
+		}
+	},
+	call: function(opts){
+		return $.ajax($.extend(true, {}, $.service.defaults, opts));
+	}
+}
+
