@@ -57,3 +57,44 @@
 .cell.dead.damage{
 	background-color: #800
 }
+
+.startmenu-container {
+	height: 82px;
+}
+.startmenu-button{
+	background-color:  #e0e0e0;
+	float: left;
+	font-size: xx-large;
+	height: 72px;
+	min-width:288px;
+	line-height:72px;
+	color: gray;
+	border: solid gray 1px;
+	white-space: nowrap;
+	padding: 5px 10px;
+	margin: 5px;
+	text-align: center;
+}
+
+.startmenu-button-hover{
+	background-color: #aeaeae;
+}
+
+.scores-container{
+	background-color: #fff;
+	padding: 0px 10px;
+}
+
+.scores-row, .scores-row-header{
+	height: 36px;
+	font-size: x-large;
+}
+
+.scores-row-header{
+	font-weight: bold;
+}
+
+.scores-row-header td{
+	width: 96px;
+	text-align: left;
+}

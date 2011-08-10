@@ -5,6 +5,31 @@ var _keys = {
 	/*стрелка вниз*/	40: 'down',
 	/*пробел*/			32: 'pause'
 };
+
+var settings = {
+	classes : {
+		menu : {
+			container: 'startmenu-container',
+			button : 'startmenu-button',
+			buttonhover: 'startment-button-hover'
+		},
+		scores: {
+			container: 'scores-container',
+			header : 'scores-row-header',
+			row: 'scores-row'
+		}
+	},
+	scores: {
+		titles: {
+			Name: 'Игрок',
+			Score: 'Очки',
+			Time: 'Время'
+		},
+		count : 10
+	}
+}
+
+
 //
 // Точка входа.
 //
@@ -58,7 +83,7 @@ $(function() {
 				var engine = this;
 				$.info.show({
 					type:'keypress', 
-					text:'<p>Игра пройдена!</p><p>'+((player.Name)?(player.Name+', '):'')+'Всего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+					text:'<p>Игра пройдена!</p><p>'+((player.Name)?(player.Name+', в'):'В')+'сего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
 						if(player.Id && result.time && result.score)
 						$.service.call({
@@ -98,47 +123,113 @@ $(function() {
 			timechange: function(time){
 				$time.html("Игра идёт уже " + time + " секунд");
 			},
-			gameover: function(){
+			gameover: function(result){
 				$.info.show({
 					type:'keypress', 
 					text:'Змейка безвременно скончалась. Игра окончена..', 
 					callback: function(){
-						location.reload(true);
+						$.info.show({
+							type:'keypress', 
+							text:'<p>'+((player.Name)?(player.Name+', в'):'В')+'сего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
+							callback: function(){
+								if(player.Id && result.time && result.score)
+								$.service.call({
+									url: 'ajax/setscore.php',
+									data: { playerid : player.Id, time: result.time, score:result.score },
+									success: function(data){
+										location.reload(true);
+									}
+								});
+								
+							}
+						});
 					}
 				});
 			}
 		}
 	});
+
+	var startform =$('<div></div>').addClass(settings.classes.menu.container);
 	
-	var field = $('<div></div>');
-	var text = $('<input type="text"/>').css('width', '97%');
-	field.append(text).box({
-		header: {text: 'Введите Ваше имя'},
-		buttons: {
-			ok: {
-				click:function(proceed){ 
-					if(text.val()){
-						player.Name = text.val();
-						$.service.call({
-							url: 'ajax/getplayer.php',
-							data: {name:player.Name},
-							success: function(data){
-								if(data){
-									player.Id = data;
-									proceed(function(){
-										engine.create($('.gamefield'));
-									});
+	var _button = function(opts){
+		return $('<div></div>').html(opts.text||'')
+			.addClass(opts.className||settings.classes.menu.button)
+			.hover(
+				function(){$(this).addClass(settings.classes.menu.buttonhover);},
+				function(){$(this).removeClass(settings.classes.menu.buttonhover);}
+			);
+	};
+	
+	var _buttons = {
+		New : _button({text: 'Hoвая игра'}).appendTo(startform).click(function(){
+			startform.modal('hide', function(){ 
+				startform.modal('clear', function(){
+					var userform = $('<div></div>');
+					var text = $('<input type="text"/>').css('width', '97%');
+					userform.append(text).box({
+						header: {text: 'Введите Ваше имя'},
+						buttons: {
+							ok: {
+								click:function(proceed){ 
+									userform.find('p').remove();
+									if(text.val()){
+										player.Name = text.val();
+										$.service.call({
+											url: 'ajax/getplayer.php',
+											data: {name:player.Name},
+											success: function(data){
+												if(data){
+													player.Id = data;
+													proceed(function(){
+														engine.create($('.gamefield'));
+													});
+												}
+											}
+										});
+										
+									} else {
+										userform.prepend('<p>Напишите хоть что-нить</p><p>Только не \'myname; drop table Players; --\'!</p>');
+									}
 								}
+							}, cancel: {
+								show: false
 							}
-						});
-						
+						}
+					});
+				})
+			})
+		}),
+		Scores : _button({text : 'Рейтинг игроков'}).appendTo(startform).click(function(){
+				scores=$('<table></table>').addClass(settings.classes.scores.container);
+				var _row = function(value){
+					return $('<tr></tr>').append('<td>'+value.Name+'</td>','<td>'+value.Score+'</td>','<td>'+value.Time+'</td>');
+				};
+				titlerow= _row(settings.scores.titles).appendTo(scores).addClass(settings.classes.scores.header);
+				
+
+				$.service.call({
+					url: 'ajax/getscores.php',
+					data: {count : settings.scores.count},
+					success: function(data){
+						var json = $.parseJSON(data);
+						if(json.length){
+							$.each(json, function(index, value){
+								_row(value).addClass(settings.classes.scores.row).appendTo(scores);
+							});
+							scores.modal().modal('show', function(){
+								scores.click(function(){
+									scores.modal('hide', function(){scores.modal('clear');});
+								});
+							});
+						}
 					}
-				}
-			}, cancel: {
-				show: false
-			}
-		}
-	});
+				});
+		})
+	}
+	
+	startform.modal().modal('show');
+
+	
 	
 	
 	$(window).keydown(function(e){

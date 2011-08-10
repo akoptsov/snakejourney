@@ -79,7 +79,7 @@ var Engine = function(opts){
 			}
 		}, 
 		failed: function(){
-			_invoke(options.events.gameover, engine);
+			_invoke(options.events.gameover, engine, _result);
 		},
 		scorechange: function(score){
 			_invoke(options.events.scorechange, engine, score);

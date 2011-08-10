@@ -37,7 +37,7 @@ function _register(pobject){
 		
 		$.fn[pobject.name] = function(){
 			if(arguments.length < 1){
-				return pobject.methods[pobject.mehtods['default'] || _default].apply(this, {});
+				return pobject.methods[pobject.methods['default'] || _default].apply(this, [{}]);
 			} else {
 				if(typeof arguments[0] == 'string'){
 					var mname = arguments[0];
