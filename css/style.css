@@ -83,11 +83,14 @@
 .scores-container{
 	background-color: #fff;
 	padding: 0px 10px;
+	font-size: x-large;
+	min-height: 36px;
+	min-width: 180px;
 }
 
 .scores-row, .scores-row-header{
 	height: 36px;
-	font-size: x-large;
+	white-space: nowrap;
 }
 
 .scores-row-header{
@@ -95,6 +98,6 @@
 }
 
 .scores-row-header td{
-	width: 96px;
+	width: 144px;
 	text-align: left;
 }

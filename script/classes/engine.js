@@ -12,14 +12,14 @@ defaults.Engine = {
 		endlevel: function(level, result, proceed){},
 		scorechange: function(score){},
 		timechange: function(time){},
-		gameover: function(){}
+		gameover: function(result){}
 	},
 	levels:[
 		{
 			name: 'Уровень 1 : Зеленая Козявка', 
 			field: {width:20, height:20}, 
 			steptime: 240,
-			finish: { score:1/*8*/ }
+			finish: { score:8 }
 		}, 
 		{
 			name: 'Уровень 2 : Алый Аспид', 
@@ -29,7 +29,7 @@ defaults.Engine = {
 				classes:{body:'snake-asp'}
 			}, 
 			steptime: 180, 
-			finish: {score:2/*23*/}
+			finish: {score:23}
 		},
 		{
 			name: 'Последний уровень: Железный Питон', 
@@ -42,7 +42,7 @@ defaults.Engine = {
 				}
 			}, 
 			steptime:120, 
-			finish: {time:/*90*/10}
+			finish: {time:90}
 		}
 	]
 };
@@ -78,7 +78,10 @@ var Engine = function(opts){
 				}
 			}
 		}, 
-		failed: function(){
+		failed: function(result){
+			_result.score +=result.score;
+			_result.time  +=result.time;
+			
 			_invoke(options.events.gameover, engine, _result);
 		},
 		scorechange: function(score){

@@ -26,38 +26,37 @@ body{
 /*<jquery-box>*/
 .ui-custom-box-container{
 	padding: 3px;
+	font-size: x-large;
 	background-color: #fff
 }
 
 .ui-custom-box-content{
-	min-width:240px;
-	/*min-height:120px;*/
+	min-width:360px;
 	padding: 2px;
 }
 
 .ui-custom-box-header{
-	height: 24px;
-	font-size: large;
+	height: 36px;
 	background-color: #e0e0e0;
 	color: gray;
 	padding-left: 10px;
 }
 
 .ui-custom-box-buttonpanel{
-	height:26px;
+	height:38px;
 	margin-top:3px;
 	padding:1px;
 }
 
 .ui-custom-button {
-	font-size: large;
-	min-width:72px;
-	height:24px;
+	min-width:96px;
+	height:36px;
 	text-align: center;
 	background-color:  #e0e0e0;
 	color: gray;
 	border: solid gray 1px;
-	margin-left:3px;
+	margin-left: 5px;
+	padding: 0px 5px;
 	float: right;
 	cursor: pointer;
 }

@@ -22,8 +22,9 @@ var settings = {
 	scores: {
 		titles: {
 			Name: 'Игрок',
-			Score: 'Очки',
-			Time: 'Время'
+			Score: 'Набрал',
+			Time: 'В течение',
+			Won: 'И в конце'
 		},
 		count : 10
 	}
@@ -85,10 +86,10 @@ $(function() {
 					type:'keypress', 
 					text:'<p>Игра пройдена!</p><p>'+((player.Name)?(player.Name+', в'):'В')+'сего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 					callback: function(){
-						if(player.Id && result.time && result.score)
+						if(player.Id && parseInt(result.time)>=0 && parseInt(result.score)>=0)
 						$.service.call({
 							url: 'ajax/setscore.php',
-							data: { playerid : player.Id, time: result.time, score:result.score },
+							data: { playerid : player.Id, time: result.time, score:result.score, won:1 },
 							success: function(data){
 								proceed();
 								if(engine.gamefield){
@@ -132,10 +133,10 @@ $(function() {
 							type:'keypress', 
 							text:'<p>'+((player.Name)?(player.Name+', в'):'В')+'сего Вы играли '+result.time+' секунд и набрали '+result.score+' oчков</p>',
 							callback: function(){
-								if(player.Id && result.time && result.score)
+								if(player.Id && parseInt(result.time)>=0 && parseInt(result.score)>=0)
 								$.service.call({
 									url: 'ajax/setscore.php',
-									data: { playerid : player.Id, time: result.time, score:result.score },
+									data: { playerid : player.Id, time: result.time, score:result.score, won: 0 },
 									success: function(data){
 										location.reload(true);
 									}
@@ -165,7 +166,7 @@ $(function() {
 			startform.modal('hide', function(){ 
 				startform.modal('clear', function(){
 					var userform = $('<div></div>');
-					var text = $('<input type="text"/>').css('width', '97%');
+					var text = $('<input type="text"/>').css({'width': '97%', 'font-size':'x-large'});
 					userform.append(text).box({
 						header: {text: 'Введите Ваше имя'},
 						buttons: {
@@ -188,7 +189,7 @@ $(function() {
 										});
 										
 									} else {
-										userform.prepend('<p>Напишите хоть что-нить</p><p>Только не \'myname; drop table Players; --\'!</p>');
+										userform.prepend('<p>Напишите хоть что-нить</p><p>Только не " \'лолшто???\'; drop table Players; --\"!</p>');
 									}
 								}
 							}, cancel: {
@@ -202,7 +203,7 @@ $(function() {
 		Scores : _button({text : 'Рейтинг игроков'}).appendTo(startform).click(function(){
 				scores=$('<table></table>').addClass(settings.classes.scores.container);
 				var _row = function(value){
-					return $('<tr></tr>').append('<td>'+value.Name+'</td>','<td>'+value.Score+'</td>','<td>'+value.Time+'</td>');
+					return $('<tr></tr>').append('<td>'+value.Name+'</td>','<td>'+value.Score+'</td>','<td>'+value.Time+'</td>', '<td>'+value.Won+'</td>');
 				};
 				titlerow= _row(settings.scores.titles).appendTo(scores).addClass(settings.classes.scores.header);
 				
@@ -210,18 +211,36 @@ $(function() {
 				$.service.call({
 					url: 'ajax/getscores.php',
 					data: {count : settings.scores.count},
-					success: function(data){
+					dataFilter: function(data){
 						var json = $.parseJSON(data);
 						if(json.length){
-							$.each(json, function(index, value){
+							return $.map(json, function(item){ 
+								return {
+									Name:item.Name || 'Непонятно кто',
+									Score: parseInt(item.Score)? item.Score + ' очков' : '..ничего..',
+									Time: parseInt(item.Time)? item.Time+' секунд': 'сразу :)',
+									Won: parseInt(item.Won) ? 'Победил!': 'Сдох..'
+								}
+							});
+						} else {
+							return [];
+						}
+					},
+					success: function(data){
+						if(data.length){
+							$.each(data, function(index, value){
 								_row(value).addClass(settings.classes.scores.row).appendTo(scores);
 							});
-							scores.modal().modal('show', function(){
-								scores.click(function(){
-									scores.modal('hide', function(){scores.modal('clear');});
-								});
-							});
+						} else {
+							scores = $('<div>Пока героев нет...</div>').addClass(settings.classes.scores.container);
 						}
+						scores.modal().modal('show', function(){
+							var _hide = function(){
+								scores.modal('hide', function(){scores.modal('clear');});
+								$(document).unbind('click', _hide);
+							};
+							$(document).bind('click', _hide);
+						});
 					}
 				});
 		})
@@ -229,9 +248,6 @@ $(function() {
 	
 	startform.modal().modal('show');
 
-	
-	
-	
 	$(window).keydown(function(e){
 		var event = e || window.event;
 		var keycode = event.keyCode || event.charCode;

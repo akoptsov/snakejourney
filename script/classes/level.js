@@ -21,7 +21,7 @@ defaults.Level = {
 		start: function(){},
 		pause: function(){},
 		clear: function(result){}, 
-		failed: function(){},
+		failed: function(result){},
 		scorechange: function(score){},
 		timechange: function(time){}
 	}
@@ -149,7 +149,7 @@ var Level = function(opts){
 			},
 			die: function($element){
 				_tasker.stop();
-				_invoke(options.events.failed, level);
+				_invoke(options.events.failed, level, _result);
 			}
 		}
 	});

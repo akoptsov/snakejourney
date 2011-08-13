@@ -59,6 +59,7 @@ function createdb($connection){
 		`PlayerId` int(11) NOT NULL,
 		`Score` int(11) NOT NULL,
 		`Time` int(11) NOT NULL,
+		`Won` bit(1) NOT NULL,
 		`When` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		KEY `PlayerId` (`PlayerId`)
 	) ENGINE=InnoDB DEFAULT CHARSET=cp1251;";
