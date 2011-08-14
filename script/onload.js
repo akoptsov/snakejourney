@@ -161,44 +161,89 @@ $(function() {
 			);
 	};
 	
+	function _back(proceed){
+		proceed();
+		startform.modal('show');
+	}
 	var _buttons = {
 		New : _button({text: 'Hoвая игра'}).appendTo(startform).click(function(){
-			startform.modal('hide', function(){ 
-				startform.modal('clear', function(){
-					var userform = $('<div></div>');
-					var text = $('<input type="text"/>').css({'width': '97%', 'font-size':'x-large'});
-					userform.append(text).box({
-						header: {text: 'Введите Ваше имя'},
+			startform.modal('hide');
+			var userform = $('<div></div>');
+			var text = $('<input type="text"/>').css({'width': '97%', 'font-size':'x-large'});
+			userform.append(text).box({
+				header: {text: 'Введите Ваше имя'},
+				buttons: {
+					ok: {
+						click:function(proceed){ 
+							userform.find('p').remove();
+							if(text.val()){
+								player.Name = text.val();
+								$.service.call({
+									url: 'ajax/player.php',
+									data: {name:player.Name},
+									success: function(data){
+										if(data){
+											player.Id = data;
+											proceed(function(){
+												startform.modal('clear');
+												engine.create($('.gamefield'));
+											});
+										}
+									}
+								});
+								
+							} else {
+								userform.prepend('<p>Напишите хоть что-нить</p><p>Только не " \'лолшто???\'; drop table Players; --\"!</p>');
+							}
+						}
+					}, cancel: {
+						click: _back
+					}
+				}
+			});
+		}),
+		Load : _button({text:'Продолжить'}).appendTo(startform).click(function(){
+			startform.modal('hide');
+			$.service.call({
+				url:'ajax/playerslist.php',
+				data: {},
+				dataFilter: function(data){
+					var json = $.parseJSON(data);
+					if(json.length){
+						return $.map(json, function(item){
+							return {
+								name: item.Name,
+								value: item
+							};
+						});
+					} else {
+						return [];
+					}
+				},
+				success: function(data){
+					var userform = $('<div></div>').picker({ items: data });
+					userform.box({
+						header: { text: "Выберите пользователя" },
 						buttons: {
-							ok: {
-								click:function(proceed){ 
-									userform.find('p').remove();
-									if(text.val()){
-										player.Name = text.val();
-										$.service.call({
-											url: 'ajax/getplayer.php',
-											data: {name:player.Name},
-											success: function(data){
-												if(data){
-													player.Id = data;
-													proceed(function(){
-														engine.create($('.gamefield'));
-													});
-												}
-											}
+							ok: { 
+								click: function(proceed){
+									var selection = userform.picker('value');
+									if(selection && selection.Id && selection.Name){
+										player = selection;
+										proceed(function(){
+											startform.modal('clear');
+											engine.create($('.gamefield'));
 										});
-										
-									} else {
-										userform.prepend('<p>Напишите хоть что-нить</p><p>Только не " \'лолшто???\'; drop table Players; --\"!</p>');
 									}
 								}
-							}, cancel: {
-								show: false
+							}, 
+							cancel: { 
+								click:_back
 							}
 						}
 					});
-				})
-			})
+				}
+			});
 		}),
 		Scores : _button({text : 'Рейтинг игроков'}).appendTo(startform).click(function(){
 				scores=$('<table></table>').addClass(settings.classes.scores.container);
@@ -209,7 +254,7 @@ $(function() {
 				
 
 				$.service.call({
-					url: 'ajax/getscores.php',
+					url: 'ajax/scoreslist.php',
 					data: {count : settings.scores.count},
 					dataFilter: function(data){
 						var json = $.parseJSON(data);
@@ -244,6 +289,7 @@ $(function() {
 					}
 				});
 		})
+		
 	}
 	
 	startform.modal().modal('show');

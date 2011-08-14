@@ -31,8 +31,8 @@
 				show: true
 			},
 			buttons: {
-					ok: {text: 'Готово', click: function(proceed){ _invoke(proceed, this); }},
-					cancel : {text: 'Отмена', click: function(proceed){_invoke(proceed, this); }}
+					cancel : {text: 'Отмена', click: function(proceed){_invoke(proceed, this); }},
+					ok: {text: 'Готово', click: function(proceed){ _invoke(proceed, this); }}
 			},
 			modal : {
 				

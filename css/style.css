@@ -62,6 +62,7 @@
 	height: 82px;
 }
 .startmenu-button{
+	cursor: pointer;
 	background-color:  #e0e0e0;
 	float: left;
 	font-size: xx-large;
